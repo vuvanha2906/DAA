@@ -1,6 +1,6 @@
 from spotify_api import get_user_playlists, get_playlist_tracks, all_tracks
-from greedy_recommend import greedy_recommendation
-from dp_recommend import dp_recommendation
+from Final.recommention.greedy_recommend import greedy_recommendation
+from Final.recommention.dp_recommend import dp_recommendation
 import streamlit as st
 
 # Giao diện chính
@@ -53,7 +53,7 @@ col1, col2 = st.columns(2)
 
 with col1:
     if st.button("🔁 Gợi ý (Tham lam)"):
-        recommendations = greedy_recommendation([selected_track], all_tracks, recommended_ids, top_n=5)
+        recommendations = greedy_recommendation([selected_track], all_tracks, recommended_ids, top_n=10)
         if recommendations:
             st.subheader("🎯 Gợi ý (Tham lam)")
             for track in recommendations:

@@ -69,7 +69,7 @@ def dp_recommendation(playlist_tracks, all_tracks, recommended_ids, top_n=10):
             genres = [g.strip() for g in genres.split(',')]
         for g in genres:
             if g.strip().lower() in playlist_genres:
-                genre_score += 2
+                genre_score += 5
 
         # Tổng điểm
         t['score'] = round(author_score + genre_score + popularity + 3 * cosine_score, 2)
@@ -107,3 +107,4 @@ def dp_recommendation(playlist_tracks, all_tracks, recommended_ids, top_n=10):
 
     # Kết quả cuối cùng
     return dp[n][top_n] if dp[n][top_n] else sorted(candidates, key=lambda x: x['score'], reverse=True)[:top_n]
+

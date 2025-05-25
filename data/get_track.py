@@ -4,8 +4,8 @@ import pandas as pd
 
 # Thiết lập thông tin OAuth
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-    client_id="your id",
-    client_secret="your secret",
+    client_id="Your Client ID",
+    client_secret="Your Client Secret",
     redirect_uri="http://127.0.0.1:8888/callback",
     scope="playlist-read-private playlist-read-collaborative"
 ))
@@ -75,7 +75,7 @@ def extract_playlist_data(playlist_url):
     return data
 
 
-playlist_url = "https://open.spotify.com/playlist/5psHmONFRLGATbI8imJB08?si=7tEMZTIcRXKhvMPZNiCj0Q&pi=D3DcI24uRzOnT&nd=1&dlsi=595e49ce21b040bf"  # (bạn thay URL)
+playlist_url = "https://open.spotify.com/playlist/1cuorQgfxeexzWxNSqGAJR?si=5sOKpdiwRaORMR1iDuFBvQ&pi=Joel15eNSBaFD&nd=1&dlsi=36b75a8f6ccb4c26"  # (bạn thay URL)
 
 # Lấy dữ liệu
 playlist_data = extract_playlist_data(playlist_url)

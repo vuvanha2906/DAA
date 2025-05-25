@@ -4,14 +4,14 @@ from spotipy.oauth2 import SpotifyOAuth
 
 # Spotify authentication
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-    client_id='your id',
-    client_secret='your secret',
+    client_id='Your Client ID',
+    client_secret='Your Client Secret',
     redirect_uri='http://127.0.0.1:8888/callback',
     scope='user-library-read playlist-read-private playlist-read-collaborative'
 ))
 
 # Read data from CSV
-data = pd.read_csv("playlist_2010to2023.csv")
+data = pd.read_csv("../data/playlist_2010to2023.csv")
 data.artist_genres = data.artist_genres.apply(lambda x: eval(x))
 data.track_id = data.track_id.apply(lambda x: f"https://open.spotify.com/track/{x}")
 

@@ -14,7 +14,7 @@ def generate_fake_track(i):
         'features': np.random.rand(10).tolist(),
         'track_popularity': random.randint(0, 100),
         'artist_name': f"artist_{random.randint(1, 30)}",
-        'artist_genres': ['pop', 'rock', 'jazz', 'hiphop'][random.randint(0, 3)]
+        'artist_genres': f"artist_{random.randint(1, 100)}",
     }
 
 def generate_data(num_tracks):
@@ -24,9 +24,9 @@ def generate_data(num_tracks):
     return playlist, all_tracks, recommended_ids
 
 # ----------------------
-# Hàm greedy
+# Hàm greedy (đã tối ưu hóa)
 # ----------------------
-def greedy_recommendation(playlist_tracks, all_tracks, recommended_ids, top_n=5):
+def greedy_recommendation_optimized(playlist_tracks, all_tracks, recommended_ids, top_n=10):
     if not playlist_tracks:
         return []
 
@@ -41,16 +41,17 @@ def greedy_recommendation(playlist_tracks, all_tracks, recommended_ids, top_n=5)
     ]
     playlist_mean = np.mean(playlist_vectors, axis=0).reshape(1, -1)
 
-    playlist_authors = set()
-    playlist_genres = set()
-    for t in playlist_tracks:
-        for a in t.get('artist_name', '').split(','):
-            playlist_authors.add(a.strip().lower())
-        genres = t.get('artist_genres', [])
-        if isinstance(genres, str):
-            genres = [g.strip() for g in genres.split(',')]
-        for g in genres:
-            playlist_genres.add(g.strip().lower())
+    playlist_authors = {
+        a.strip().lower()
+        for t in playlist_tracks
+        for a in t.get('artist_name', '').split(',')
+    }
+
+    playlist_genres = {
+        g.strip().lower()
+        for t in playlist_tracks
+        for g in (t.get('artist_genres', '').split(',') if isinstance(t.get('artist_genres'), str) else t.get('artist_genres', []))
+    }
 
     candidates = [
         t for t in all_tracks
@@ -58,32 +59,39 @@ def greedy_recommendation(playlist_tracks, all_tracks, recommended_ids, top_n=5)
         and t['track_id'] not in {pt['track_id'] for pt in playlist_tracks}
     ]
 
+    if not candidates:
+        return []
+
+    candidate_vectors = [
+        np.array(t['features']) if t.get('features') is not None else np.zeros_like(example_vector)
+        for t in candidates
+    ]
+    similarities = cosine_similarity(candidate_vectors, playlist_mean).flatten()
+
     delta = 3
     genre_bonus_per_match = 5
     scored_candidates = []
 
-    for track in candidates:
-        author_str = track.get('artist_name', '')
+    for i, track in enumerate(candidates):
         popularity = track.get('track_popularity', 50)
-        features = track.get('features')
-        vector = np.array(features) if features is not None else np.zeros_like(example_vector)
-
         author_score = 0
-        for a in author_str.split(','):
-            artist_clean = a.strip().lower()
-            if artist_clean in playlist_authors:
+        genre_score = 0
+
+        author_names = [a.strip().lower() for a in track.get('artist_name', '').split(',')]
+        for a in author_names:
+            if a in playlist_authors:
                 bonus = int((100 - popularity) // 10) * 10
                 author_score += max(0, bonus)
 
-        genre_score = 0
-        genres = track.get('artist_genres', [])
-        if isinstance(genres, str):
-            genres = [g.strip() for g in genres.split(',')]
+        genres = (
+            track.get('artist_genres', '').split(',') if isinstance(track.get('artist_genres'), str)
+            else track.get('artist_genres', [])
+        )
         for g in genres:
             if g.strip().lower() in playlist_genres:
                 genre_score += genre_bonus_per_match
 
-        similarity = cosine_similarity(vector.reshape(1, -1), playlist_mean)[0][0]
+        similarity = similarities[i]
         total_score = author_score + genre_score + popularity + delta * similarity
         scored_candidates.append((total_score, track))
 
@@ -94,7 +102,7 @@ def greedy_recommendation(playlist_tracks, all_tracks, recommended_ids, top_n=5)
 # ----------------------
 # Hàm quy hoạch động
 # ----------------------
-def dp_recommendation(playlist_tracks, all_tracks, recommended_ids, top_n=5):
+def dp_recommendation(playlist_tracks, all_tracks, recommended_ids, top_n=10):
     if not playlist_tracks:
         return []
 
@@ -182,13 +190,13 @@ def dp_recommendation(playlist_tracks, all_tracks, recommended_ids, top_n=5):
 # ----------------------
 greedy_times = []
 dp_times = []
-sizes = list(range(10, 1001, 100)) + [3000]
+sizes = list(range(10, 100000, 100))
 
 for size in sizes:
     playlist, all_tracks, recommended_ids = generate_data(size)
 
     start = time.time()
-    greedy_recommendation(playlist, all_tracks, recommended_ids, top_n=10)
+    greedy_recommendation_optimized(playlist, all_tracks, recommended_ids, top_n=10)
     greedy_times.append(time.time() - start)
 
     start = time.time()
@@ -199,7 +207,7 @@ for size in sizes:
 # Vẽ biểu đồ
 # ----------------------
 plt.figure(figsize=(10, 6))
-plt.plot(sizes, greedy_times, label='Greedy', marker='o')
+plt.plot(sizes, greedy_times, label='Greedy (Optimized)', marker='o')
 plt.plot(sizes, dp_times, label='Dynamic Programming', marker='s')
 plt.xlabel("Số lượng bài hát")
 plt.ylabel("Thời gian chạy (s)")
