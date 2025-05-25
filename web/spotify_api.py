@@ -11,7 +11,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 ))
 
 # Read data from CSV
-data = pd.read_csv("../data/playlist_2010to2023.csv")
+data = pd.read_csv("../data/playlist.csv")
 data.artist_genres = data.artist_genres.apply(lambda x: eval(x))
 data.track_id = data.track_id.apply(lambda x: f"https://open.spotify.com/track/{x}")
 
