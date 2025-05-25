@@ -40,8 +40,8 @@ To enable live track feature extraction, you must:
     - CLIENT_SECRET
 - Set up REDIRECT_URI (e.g., http://localhost:8888/callback)
 - For more:
-  - Spotify Web API Docs
-  - Spotipy Python Library
+  - [Spotify Web API Docs](https://developer.spotify.com/documentation/web-api)
+  - [Spotipy Python Library](https://spotipy.readthedocs.io/en/2.25.1/)
     
 ## 🙆‍♂️ Now run it to open the app!
 Open interface.py on terminal and run:
